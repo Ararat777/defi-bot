@@ -15,10 +15,13 @@
     "@solana/spl-token-registry": "^0.2.7",
     "@solana/web3.js": "^1.95.3",
     "@triton-one/yellowstone-grpc": "^1.2.0",
+    "@types/express-ws": "^3.0.5",
     "@types/jsonfile": "^6.1.4",
     "bs58": "^5.0.0",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-ws": "^5.0.2",
     "fastify": "^5.2.0",
     "grammy": "^1.33.0",
     "jsonfile": "^6.1.0",
@@ -28,7 +31,9 @@
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.5",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
+    "@types/ws": "^8.5.13",
     "npm-check-updates": "^16.14.11",
     "prisma": "^6.1.0",
     "tsx": "^4.19.2"

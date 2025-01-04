@@ -224,7 +224,7 @@ export class PumpFunSDK {
   ) {
     let bondingCurveAccount = await this.getBondingCurveAccount(
       mint,
-      commitment
+      'confirmed'
     );
     if (!bondingCurveAccount) {
       throw new Error(`Bonding curve account not found: ${mint.toBase58()}`);

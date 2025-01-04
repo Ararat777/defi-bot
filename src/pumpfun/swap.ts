@@ -21,9 +21,6 @@ export const pumpBuy = async (mintStr: String, amount: number, fee: number, tip:
   const sdk = new PumpFunSDK(provider);
   const mint = new PublicKey(mintStr);
 
-  await printSOLBalance(connection, owner.publicKey, "Test Account keypair");
-  const globalAccount = await sdk.getGlobalAccount();
-
   const buyResults = await sdk.buy(
     owner,
     mint,
@@ -36,10 +33,10 @@ export const pumpBuy = async (mintStr: String, amount: number, fee: number, tip:
   );
 
   if (buyResults.success) {
-    await printSPLBalance(sdk.connection, mint, owner.publicKey);
-    console.log("Bonding curve after buy", await sdk.getBondingCurveAccount(mint));
+    return buyResults.signature;
   } else {
     console.log("Buy failed");
+    return null
   }
 }
 
@@ -49,7 +46,6 @@ export const pumpSell = async (mintStr: String, amount: number, fee: number, tip
   const mint = new PublicKey(mintStr);
 
   await printSOLBalance(connection, owner.publicKey, "Test Account keypair");
-  const globalAccount = await sdk.getGlobalAccount();
 
   const currentSPLBalance = await getSPLBalance(
     sdk.connection,
@@ -70,13 +66,14 @@ export const pumpSell = async (mintStr: String, amount: number, fee: number, tip
         unitPrice: fee * (LAMPORTS_PER_SOL * 1000_000),
       }
     );
+      // await printSOLBalance(sdk.connection, owner.publicKey, "Test Account keypair");
+      // printSPLBalance(sdk.connection, mint, owner.publicKey, "After SPL sell all");
 
     if (sellResults.success) {
-      await printSOLBalance(sdk.connection, owner.publicKey, "Test Account keypair");
-      printSPLBalance(sdk.connection, mint, owner.publicKey, "After SPL sell all");
-      console.log("Bonding curve after sell", await sdk.getBondingCurveAccount(mint));
+      return sellResults.signature;
     } else {
-      console.log("Sell failed");
+      console.log("Buy failed");
+      return null
     }
   }
 }

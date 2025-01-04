@@ -55,16 +55,16 @@ export async function sendTx(
 
   newTx.add(tx);
 
-  const latestBlockhash = await connection.getLatestBlockhash(commitment);
+  const latestBlockhash = await connection.getLatestBlockhash('confirmed');
   let txResult: VersionedTransactionResponse | null = null
   try {
     if(useJito){
       let executor = new JitoTransactionExecutor(connection)
       let result = await executor.executeAndConfirm(newTx, signers[0], tip, latestBlockhash);
-      console.log(result);
       let sig = result.signature || null;
 
-      console.log(result.signature);
+      console.log(sig)
+
       if(!sig){
         return {
           success: false,
@@ -72,15 +72,13 @@ export async function sendTx(
         };
       }
       let i = 0
-      while (++i < 7 || !txResult){
+      while (++i < 20 || !txResult){
         setTimeout(() => {}, 1000)
         txResult = await connection.getTransaction(sig, {
           maxSupportedTransactionVersion: 0,
-          commitment: 'confirmed',
+          commitment: 'finalized',
         })
       }
-      console.log(txResult);
-
       if (!txResult) {
         return {
           success: false,
@@ -89,7 +87,7 @@ export async function sendTx(
       }
       return {
         success: true,
-        results: txResult,
+        signature: sig,
       };
     }else{
       let versionedTx = await buildVersionedTx(connection, payer, newTx, commitment);

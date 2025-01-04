@@ -45,13 +45,10 @@ export class JitoTransactionExecutor implements TransactionExecutor {
     tip: number,
     latestBlockhash: BlockhashWithExpiryBlockHeight,
   ): Promise<{ confirmed: boolean; signature?: string; error?: string }> {
-    console.log('Starting Jito transaction execution...');
     this.JitoFeeWallet = this.getRandomValidatorKey(); // Update wallet key each execution
-    console.log(`Selected Jito fee wallet: ${this.JitoFeeWallet.toBase58()}`);
 
     try {
       const fee = tip * LAMPORTS_PER_SOL
-      console.log(`Calculated fee: ${fee} lamports`);
 
       const jitoInstruction = SystemProgram.transfer({
         fromPubkey: payer.publicKey,
@@ -72,8 +69,6 @@ export class JitoTransactionExecutor implements TransactionExecutor {
       jitoFeeTx.sign([payer]);
 
       const jitoTxsignature = bs58.encode(jitoFeeTx.signatures[0]);
-      console.log(jitoTxsignature)
-
       // Serialize the transactions once here
       const serializedjitoFeeTx = bs58.encode(jitoFeeTx.serialize());
       const serializedTransactions = [serializedjitoFeeTx];
@@ -95,19 +90,15 @@ export class JitoTransactionExecutor implements TransactionExecutor {
           params: [serializedTransactions],
         }),
       );
-
-      console.log('Sending transactions to endpoints...');
       const results = await Promise.all(requests.map((p) => p.catch((e) => e)));
 
       const successfulResults = results.filter((result) => !(result instanceof Error));
 
       if (successfulResults.length > 0) {
         console.log(`At least one successful response`);
-        console.log(successfulResults[0]);
-        let result = successfulResults[0];
-        let bundle_id = result.data.result;
-        let response = await axios.post('https://frankfurt.mainnet.block-engine.jito.wtf/api/v1/bundles', {jsonrpc: '2.0', id: 1, method: 'getBundleStatuses', params: [[bundle_id]]})
-        console.log(response)
+        // let result = successfulResults[0];
+        // let bundle_id = result.data.result;
+        // let response = await axios.post('https://frankfurt.mainnet.block-engine.jito.wtf/api/v1/bundles', {jsonrpc: '2.0', id: 1, method: 'getBundleStatuses', params: [[bundle_id]]})
         return { confirmed: true, signature: jitoTxsignature }
       } else {
         console.log(`No successful responses received for jito`);

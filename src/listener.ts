@@ -15,34 +15,6 @@ import { db_client } from "./prisma";
   }
   const addresses = accounts.map((a) => a.address)
 
-  // const accounts = [
-  //   'EbNr5s54pCUFzEyBDjJWwqYQc7R5E8udmPEpDLwpbjKq',
-  //   'G9fmyVHqWS94YRfyQjYVUdf8oPufkoxbUWCLiHJyR8Br',
-  //   'vHRSMB5mSEYJvwiW55fHquPsH67hhGYe4iGPcJchtor',
-  //   '9kf7oyNPHZB7TWcZZRewFMFwGNDKSEZKSSumMdaRYiuv',
-  //   '5CP6zv8a17mz91v6rMruVH6ziC5qAL8GFaJzwrX9Fvup',
-  //   'DecXrBS8ADaac7yqLcC6WxNNAfMhVsF1SHmvSNv66yDe',
-  //   'Cogv5PSB1sPp5j9zxm73kd7RJsEo2Hf3e1TfUmXCfXku',
-  //   'E4vNz3hayWb1foruhiAXW3QmAQYe8zFcR8PbJWtkMzJ1',
-  //   '9xjHuRSgTpLHQuTfxPWFpxR7j8MtypaqxihMyVEAtGWo',
-  //   'DijrEoJ9MTUvKFFTTa3haBRphnoz1kGEEquprSAk5adq',
-  //   '2GstvpUP7xY2X5zGd2YeJ64uPVuVjfvoc9Bt4uNMmvCV',
-  //   '5q7Xwc2T57sK1DKU6zuwVXvMPsxqB2xrJ3T5AonFYtcY',
-  //   'VipjExwk6H7Wa5WdhESB474AEbbozNYWZU29YVw74ad',
-  //   '9xjHuRSgTpLHQuTfxPWFpxR7j8MtypaqxihMyVEAtGWo',
-  //   'DxsDJ22zei9TL25rwu5tquKGdkoPDCbz5japgeYbdXWq',
-  //   '8R7fk3ooWZdDVY6UzrK5KDHUEdmoePqzLrifNPQ3b5kP',
-  //   'vaa9Pbk9XVGQ9b6PLAvR46zatgNF196Uz9FRhwpSCRx',
-  //   '7GHHRCrJ9HNa5QiZwLvEFaLP6mdobFjGXLtefvJePChi',
-  //   'AE6Xb2143g4PR9hW3nYMMwzgEh7qu2j5W9zouaUHXbvr',
-  //   '5cbstrVqvSWtK1ZzdQpNaMx6xqHZrv23X1CgAfJznLz5',
-  //   'AKLiD5KCVFvniFyYvT8CVH48oGKV4KApFEWFU8RbLq4Q',
-  //   'FBU6uFyuFHzSrzPoR89nNsKPf7JvW2237aPLVtUMfPhH',
-  //   'BPt9C8Hgp77QiMjecwvkZCx3BTDSuggeLkNKyh9U7dUv',
-  //   '9fQYZyxTUWkv7JsXVkgvKmNZBDGTsdMjCkedfmCfBjML',
-  //   '8xucMh5W5qAgNfpXQ7z8xgs3T5uDrDrtbTSPanhGgBbH'
-  // ];
-
   const handleTransaction = async (account: PublicKey, signature: string) => {
     // try{
       let result: any
