@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import {BorshCoder} from "@coral-xyz/anchor";
 import {IDL} from "./src/pumpfun/sdk/IDL";
+import fs from 'fs';
 
 const app = express();
 const expressWs = require('express-ws')(app);
@@ -26,10 +27,13 @@ app.get("/clients", (req, res) => {
 
 app.post("/", (req, res)=>{
   req.body.forEach((tx: any) => {
+    fs.writeFile('logs.txt', `${new Date(tx.blockTime * 1000)} --- ${tx.signature}`, { flag: 'a+' }, (err) => {
+      return
+    });
     tx.instructions.forEach((ix: any) => {
       let ixData = decodedData(ix)
       if(ixData){
-        let pumpEvent: any = { signature: tx.signature, slot: tx.slot + 1  }
+        let pumpEvent: any = { signature: tx.signature, slot: tx.slot + 1, block_time: tx.blockTime }
         if(ixData.bondingCurve){
           let mint = ixData.mint.toBase58()
           let dev = ixData.user.toBase58()
