@@ -26,34 +26,38 @@ app.get("/clients", (req, res) => {
 
 app.post("/", (req, res)=>{
   req.body.forEach((tx: any) => {
-    let instructions = tx.instructions.map((ix: any) => {
+    tx.instructions.forEach((ix: any) => {
       let ixData = decodedData(ix)
       if(ixData){
+        let pumpEvent: any = { signature: tx.signature, slot: tx.slot + 1  }
         if(ixData.bondingCurve){
           let mint = ixData.mint.toBase58()
           let dev = ixData.user.toBase58()
-          return { method: "CREATE", mint: mint, dev: dev }
+          pumpEvent.method = "CREATE"
+          pumpEvent.mint = mint
+          pumpEvent.dev = dev
         }else if(ixData.isBuy != null){
           let mint = ixData.mint.toBase58()
           let user = ixData.user.toBase58()
           let isBuy = ixData.isBuy
           let tokenAmount = ixData.tokenAmount.toNumber()
           let solAmount = ixData.solAmount.toNumber()
-
-          return { method: isBuy ? "BUY" : "SELL", mint: mint, user: user, tokenAmount: tokenAmount, solAmount: solAmount }
+          pumpEvent.method = isBuy ? "BUY" : "SELL"
+          pumpEvent.mint = mint
+          pumpEvent.user = user
+          pumpEvent.tokenAmount = tokenAmount
+          pumpEvent.solAmount = solAmount
         }
+
+        expressWs.getWss().clients.forEach(function each(client: any) {
+          if (client.readyState === 1) {
+            client.send(JSON.stringify(pumpEvent));
+          }
+        });
       }else{
         return
       }
     })
-
-    let dataToSend = {signature: tx.signature, slot: tx.slot + 1, instructions: instructions}
-
-    expressWs.getWss().clients.forEach(function each(client: any) {
-      if (client.readyState === 1) {
-        client.send(JSON.stringify(dataToSend));
-      }
-    });
   })
   res.sendStatus(200)
 });
