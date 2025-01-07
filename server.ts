@@ -26,8 +26,9 @@ app.get("/clients", (req, res) => {
 })
 
 app.post("/", (req, res)=>{
+  let txs: any = []
   req.body.forEach((tx: any) => {
-    fs.writeFile('logs.txt', `${new Date(tx.blockTime * 1000)} --- ${tx.signature}`, { flag: 'a+' }, (err) => {
+    fs.writeFile('logs.log', `${new Date()} --- ${new Date(tx.blockTime * 1000)} --- ${new Date(tx.sTime)} --- ${tx.signature}\n`, { flag: 'a+' }, (err) => {
       return
     });
     tx.instructions.forEach((ix: any) => {
@@ -53,16 +54,19 @@ app.post("/", (req, res)=>{
           pumpEvent.solAmount = solAmount
         }
 
-        expressWs.getWss().clients.forEach(function each(client: any) {
-          if (client.readyState === 1) {
-            client.send(JSON.stringify(pumpEvent));
-          }
-        });
+        txs.push(pumpEvent)
       }else{
         return
       }
     })
   })
+
+  expressWs.getWss().clients.forEach(function each(client: any) {
+    if (client.readyState === 1) {
+      client.send(JSON.stringify(txs));
+    }
+  });
+
   res.sendStatus(200)
 });
 
