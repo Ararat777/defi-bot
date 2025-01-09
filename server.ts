@@ -8,7 +8,7 @@ const app = express();
 const expressWs = require('express-ws')(app);
 const port = process.env.PORT || 3000;
 
-app.use(bodyParser.json())
+app.use(bodyParser.json({limit: '200mb'}))
 
 const decodedData = (data: string) => {
   let coder = new BorshCoder(IDL as any);
@@ -20,6 +20,20 @@ const decodedData = (data: string) => {
   }
 }
 
+const getCurrentTime = (milliSeconds: number | null) => {
+  let now: any;
+  if(milliSeconds == null){
+    now = new Date();
+  }else{
+    now = new Date(milliSeconds);
+  }
+
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+};
+
 app.get("/clients", (req, res) => {
   console.log(expressWs.getWss().clients)
   res.sendStatus(200)
@@ -27,37 +41,41 @@ app.get("/clients", (req, res) => {
 
 app.post("/", (req, res)=>{
   let txs: any = []
-  req.body.forEach((tx: any) => {
-    fs.writeFile('logs.log', `${new Date()} --- ${new Date(tx.blockTime * 1000)} --- ${new Date(tx.sTime)} --- ${tx.signature}\n`, { flag: 'a+' }, (err) => {
+  let blocks = req.body
+  blocks.forEach((block: any) => {
+    fs.writeFile('logs.log', `${getCurrentTime(null)} --- ${getCurrentTime(block.blockTime * 1000)} --- First sTime: ${block.transactions[0]?.sTime} --- Last sTime: ${block.transactions[block.transactions.length - 1]?.sTime}\n`, { flag: 'a+' }, (err) => {
       return
     });
-    tx.instructions.forEach((ix: any) => {
-      let ixData = decodedData(ix)
-      if(ixData){
-        let pumpEvent: any = { signature: tx.signature, slot: tx.slot + 1, block_time: tx.blockTime }
-        if(ixData.bondingCurve){
-          let mint = ixData.mint.toBase58()
-          let dev = ixData.user.toBase58()
-          pumpEvent.method = "CREATE"
-          pumpEvent.mint = mint
-          pumpEvent.dev = dev
-        }else if(ixData.isBuy != null){
-          let mint = ixData.mint.toBase58()
-          let user = ixData.user.toBase58()
-          let isBuy = ixData.isBuy
-          let tokenAmount = ixData.tokenAmount.toNumber()
-          let solAmount = ixData.solAmount.toNumber()
-          pumpEvent.method = isBuy ? "BUY" : "SELL"
-          pumpEvent.mint = mint
-          pumpEvent.user = user
-          pumpEvent.tokenAmount = tokenAmount
-          pumpEvent.solAmount = solAmount
-        }
 
-        txs.push(pumpEvent)
-      }else{
-        return
-      }
+    block.transactions.forEach((tx: any) => {
+      tx.instructions.forEach((ix: any) => {
+        let ixData = decodedData(ix)
+        if(ixData){
+          let pumpEvent: any = { signature: tx.signature, slot: block.slot + 1, block_time: block.blockTime }
+          if(ixData.bondingCurve){
+            let mint = ixData.mint.toBase58()
+            let dev = ixData.user.toBase58()
+            pumpEvent.method = "CREATE"
+            pumpEvent.mint = mint
+            pumpEvent.dev = dev
+          }else if(ixData.isBuy != null){
+            let mint = ixData.mint.toBase58()
+            let user = ixData.user.toBase58()
+            let isBuy = ixData.isBuy
+            let tokenAmount = ixData.tokenAmount.toNumber()
+            let solAmount = ixData.solAmount.toNumber()
+            pumpEvent.method = isBuy ? "BUY" : "SELL"
+            pumpEvent.mint = mint
+            pumpEvent.user = user
+            pumpEvent.tokenAmount = tokenAmount
+            pumpEvent.solAmount = solAmount
+          }
+
+          txs.push(pumpEvent)
+        }else{
+          return
+        }
+      })
     })
   })
 
