@@ -17,6 +17,7 @@
     "@triton-one/yellowstone-grpc": "^1.2.0",
     "@types/express-ws": "^3.0.5",
     "@types/jsonfile": "^6.1.4",
+    "benchmark": "^2.1.4",
     "bs58": "^5.0.0",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.7",
