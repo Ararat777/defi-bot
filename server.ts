@@ -43,7 +43,9 @@ app.post("/", (req, res)=>{
   let txs: any = []
   let blocks = req.body
   blocks.forEach((block: any) => {
-    fs.writeFile('logs.log', `${getCurrentTime(null)} --- ${getCurrentTime(block.blockTime * 1000)} --- First sTime: ${block.transactions[0]?.sTime} --- Last sTime: ${block.transactions[block.transactions.length - 1]?.sTime}\n`, { flag: 'a+' }, (err) => {
+    let firstTime = getCurrentTime(block.transactions[0]?.sTime)
+    let lastTime = getCurrentTime(block.transactions[block.transactions.length - 1]?.sTime)
+    fs.writeFile('logs.log', `${getCurrentTime(null)} --- ${getCurrentTime(block.blockTime * 1000)} --- First sTime: ${firstTime} --- Last sTime: ${lastTime}\n`, { flag: 'a+' }, (err) => {
       return
     });
 
