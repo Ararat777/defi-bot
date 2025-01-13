@@ -5,9 +5,11 @@ import bs58 from 'bs58'
 import {createUmi} from "@metaplex-foundation/umi-bundle-defaults";
 import {mplTokenMetadata} from "@metaplex-foundation/mpl-token-metadata";
 
-export const owner: Keypair = Keypair.fromSecretKey(bs58.decode('5p1Q34DCUUCWNBmUjTmpynhLpFS9sFQ6JjY1EZnW9qda8jqMmmf3vLmd6PojdVNfXLMTktrbbaZfxDW6PrJPUspF'))
-export const connection = new Connection('https://orbital-frequent-dawn.solana-mainnet.quiknode.pro/9205ebe20cb1cc696fb3a5fe559aeeccc916497c', { wsEndpoint: 'wss://orbital-frequent-dawn.solana-mainnet.quiknode.pro/9205ebe20cb1cc696fb3a5fe559aeeccc916497c'})
-export const umi = createUmi('https://orbital-frequent-dawn.solana-mainnet.quiknode.pro/9205ebe20cb1cc696fb3a5fe559aeeccc916497c').use(mplTokenMetadata())//<YOUR_RPC_URL> //<YOUR_RPC_URL>
+require('dotenv').config()
+
+export const owner: Keypair = Keypair.fromSecretKey(bs58.decode(process.env.PRIVATE_KEY as string))
+export const connection = new Connection(process.env.RPC_URL as string, { wsEndpoint: process.env.WS_RPC_URL as string })
+export const umi = createUmi(process.env.RPC_URL as string).use(mplTokenMetadata())//<YOUR_RPC_URL> //<YOUR_RPC_URL>
 // export const connection = new Connection(clusterApiUrl('devnet')) //<YOUR_RPC_URL>
 export const txVersion = TxVersion.V0 // or TxVersion.LEGACY
 const cluster = 'mainnet' // 'mainnet' | 'devnet'

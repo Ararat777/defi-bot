@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import {BorshCoder} from "@coral-xyz/anchor";
 import {IDL} from "./src/pumpfun/sdk/IDL";
 import fs from 'fs';
+import { pumpBuy, pumpSell } from "./src/pumpfun/swap";
 
 const app = express();
 const expressWs = require('express-ws')(app);
@@ -34,19 +35,48 @@ const getCurrentTime = (milliSeconds: number | null) => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
-app.get("/clients", (req, res) => {
-  console.log(expressWs.getWss().clients)
-  res.sendStatus(200)
+app.post("/decode_data", (req, res) => {
+  let resp: any;
+
+  let data = req.body.data;
+  let decoded = decodedData(data);
+  if(decoded.isBuy != null){
+    let mint = decoded.mint.toBase58()
+    let user = decoded.user.toBase58()
+    let isBuy = decoded.isBuy
+    let tokenAmount = decoded.tokenAmount.toNumber()
+    let solAmount = decoded.solAmount.toNumber()
+
+    resp = {mint: mint, user: user, isBuy: isBuy, tokenAmount: tokenAmount, solAmount: solAmount}
+  }else{
+    resp = {error: "Invalid Data"}
+  }
+  res.status(200).json(resp);
 })
 
-app.post("/", (req, res)=>{
+app.post("/pump_trade", async (req, res) => {
+  let isBuy = req.body.isBuy;
+  let mint = req.body.mint;
+  let amount = req.body.amount;
+  let fee = req.body.fee;
+  let tip = req.body.tip;
+
+  let resp: any;
+
+  if(isBuy){
+    resp = await pumpBuy(mint, amount, fee, tip);
+  }else{
+    resp = await pumpSell(mint, amount, fee, tip);
+  }
+  res.status(200).json({ sig: resp })
+});
+
+app.post("/stream_data", async (req, res)=>{
   let txs: any = []
   let blocks = req.body
   blocks.forEach((block: any) => {
     let diff = (new Date().getTime() / 1000) - block.blockTime
-    fs.writeFile('logs.log', `${getCurrentTime(null)} --- ${getCurrentTime(block.blockTime * 1000)} --- Diff: ${diff}\n`, { flag: 'a+' }, (err) => {
-      return
-    });
+    console.log(`${getCurrentTime(null)} --- ${getCurrentTime(block.blockTime * 1000)} --- Diff: ${diff}`)
 
     block.transactions.forEach((tx: any) => {
       tx.instructions.forEach((ix: any) => {
