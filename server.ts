@@ -111,7 +111,7 @@ app.post("/pump_withdraw", async (req, res) => {
       let token = new PublicKey(migrationTokens[0]);
       console.log(token)
 
-      let signatures = await connection.getSignaturesForAddress(token, { before: sig})
+      let signatures = await connection.getSignaturesForAddress(token, { before: sig }, 'confirmed')
       signatures = signatures.filter((s: any) => s.err == null)
 
       if(signatures.length > 30){
@@ -124,7 +124,7 @@ app.post("/pump_withdraw", async (req, res) => {
 
       for (const data of signatures) {
         let sign = data.signature;
-        let tx = await connection.getParsedTransaction(sign, { maxSupportedTransactionVersion: 0 })
+        let tx = await connection.getParsedTransaction(sign, { maxSupportedTransactionVersion: 0, commitment: 'confirmed' })
         if(!tx){
           continue;
         }
