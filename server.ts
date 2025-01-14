@@ -89,7 +89,7 @@ app.post("/pump_withdraw", async (req, res) => {
     // }
 
     block.signatures.forEach(async (sig: any) => {
-      let resp = await connection.getParsedTransaction(sig, { maxSupportedTransactionVersion: 0 })
+      let resp = await connection.getParsedTransaction(sig, { maxSupportedTransactionVersion: 0, commitment: 'confirmed' })
       if(!resp){
         return
       }
