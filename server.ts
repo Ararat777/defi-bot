@@ -114,7 +114,7 @@ app.post("/pump_withdraw", async (req, res) => {
       let signatures = await connection.getSignaturesForAddress(token, { before: sig }, 'confirmed')
       signatures = signatures.filter((s: any) => s.err == null)
 
-      if(signatures.length > 30){
+      if(signatures.length > 50){
         console.log(signatures.length)
         return
       }
